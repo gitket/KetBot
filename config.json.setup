@@ -1,0 +1,9 @@
+{
+    "path":"",
+    "api_key":"",
+    "twitch_api_key":"",
+    "discord_token":"",
+    "servers":[""],
+    "channel":"",
+    "serverid":""
+}
