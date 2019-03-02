@@ -9,14 +9,20 @@ from string import punctuation
 from bs4 import BeautifulSoup
 import time
 import numbers
+from twitch import TwitchClient
+from discord import Embed
+from discord import Colour
 
 client = discord.Client()
 with open('config.json') as config_data:
     config_json = json.load(config_data)
     api_key = config_json['api_key']
+    twitch_api_key = config_json['twitch_api_key']
+    twitch_client_id = config_json['twitch_api_client_id']
     token = config_json['discord_token']
-    channel = config_json['channel'];
+    streamChannel = config_json['channel'];
     serverid = config_json['serverid'];
+    twitch = TwitchClient(client_id=twitch_client_id)
 
 @client.event
 async def on_ready():
@@ -34,7 +40,26 @@ async def on_member_update(before, after):
         return
     gameType = getattr(after.game, "type", 0)
     streamUrl = getattr(after.game, "url", None)
-    if streamUrl:
+    if(streamUrl and gameType == 1):
+        channelName = after.game.url.split('/')[-1:]
+        channel = twitch.search.channels(channelName)
+        if channel:
+            ch = channel[0]
+            embed = Embed()
+            embed.type = 'rich'
+            embed.title = after.nick + ' now Streaming!'
+            embed.url = after.game.url
+            embed.colour = discord.Colour(0x5441a5)
+            embed.set_footer(text='Created by CromBot')
+            embed.add_field(name='Now Playing', value=ch.game)
+            embed.add_field(name='Stream Title', value=ch.status)
+            embed.add_field(name='Followers', value=ch.followers)
+            embed.add_field(name='Views', value=ch.views)
+            embed.set_image(url=ch.profile_banner)
+            print(embed)
+            print(streamChannel)
+            await client.send_message(client.get_channel(streamChannel), '{0.nick} is now live! Watch the stream: {1.game.url}'.format(after, after),embed=embed)
+            print("posted")
         print(after.game.url)
 
 client.run(token)
