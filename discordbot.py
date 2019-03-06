@@ -38,9 +38,15 @@ async def on_ready():
 async def on_member_update(before, after):
     if before.server.id != serverid:
         return
+    streamUrlBefore = getattr(before.game, "url", None)
     gameType = getattr(after.game, "type", 0)
     streamUrl = getattr(after.game, "url", None)
     if(streamUrl and gameType == 1):
+        print(streamUrl)
+        print(streamUrlBefore)
+        if(streamUrl == streamUrlBefore):
+            print("dupe")
+            return;
         channelName = after.game.url.split('/')[-1:]
         channel = twitch.search.channels(channelName)
         if channel:
@@ -56,10 +62,13 @@ async def on_member_update(before, after):
             embed.add_field(name='Followers', value=ch.followers)
             embed.add_field(name='Views', value=ch.views)
             embed.set_image(url=ch.profile_banner)
-            print(embed)
-            print(streamChannel)
+            print(embed.to_dict())
+            print(client.get_channel(streamChannel).name)
             await client.send_message(client.get_channel(streamChannel), '{0.nick} is now live! Watch the stream: {1.game.url}'.format(after, after),embed=embed)
             print("posted")
-        print(after.game.url)
 
-client.run(token)
+while True:
+	try:
+		client.loop.run_until_complete(client.start(token))
+	except BaseException:
+			time.sleep(5)
