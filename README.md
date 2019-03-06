@@ -1,5 +1,5 @@
 # KetBot
-Ket's discord bot for &lt;Crom>
+Ket's discord bot for &lt;Crom>. KetBot monitors members of a discord for twitch streams, and posts messages to a specific channel when a member has gone live. Maybe in the future, KetBot will try and rate people's transmog and display a picture, but for now, just stream monitoring.
 
 KetBot rose from the ashes that was TempleBot once the Netherlight Temple discord was decommissioned. TempleBot was a discord bot to run Simc through discord commands in the cloud before a certain largely known website that does that for you took off. At it's peak, TempleBot served approx 60k people. 
 
