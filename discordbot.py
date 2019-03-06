@@ -42,11 +42,10 @@ async def on_member_update(before, after):
     gameType = getattr(after.game, "type", 0)
     streamUrl = getattr(after.game, "url", None)
     if(streamUrl and gameType == 1):
-        print(streamUrl)
-        print(streamUrlBefore)
         if(streamUrl == streamUrlBefore):
-            print("dupe")
+            print("dupe-skipping " + streamUrl)
             return;
+        print("looking at " + streamUrl)
         channelName = after.game.url.split('/')[-1:]
         channel = twitch.search.channels(channelName)
         if channel:
@@ -57,14 +56,16 @@ async def on_member_update(before, after):
             embed.url = after.game.url
             embed.colour = discord.Colour(0x5441a5)
             embed.set_footer(text='Created by CromBot')
-            embed.add_field(name='Now Playing', value=ch.game)
+            if ch.game:
+                embed.add_field(name='Now Playing', value=ch.game)
             embed.add_field(name='Stream Title', value=ch.status)
             embed.add_field(name='Followers', value=ch.followers)
             embed.add_field(name='Views', value=ch.views)
-            embed.set_image(url=ch.profile_banner)
+            if ch.profile_banner:
+                embed.set_image(url=ch.profile_banner)
             print(embed.to_dict())
             print(client.get_channel(streamChannel).name)
-            await client.send_message(client.get_channel(streamChannel), '{0.nick} is now live! Watch the stream: {1.game.url}'.format(after, after),embed=embed)
+            await client.send_message(client.get_channel(streamChannel), after.nick + ' is now live! Watch the stream: '+ streamUrl,embed=embed)
             print("posted")
 
 while True:
