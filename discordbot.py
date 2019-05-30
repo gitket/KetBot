@@ -6,6 +6,7 @@ import os
 import datetime
 import requests
 import re
+import calendar
 from string import punctuation
 from bs4 import BeautifulSoup
 import time
@@ -13,6 +14,7 @@ import numbers
 from twitch import TwitchClient
 from discord import Embed
 from discord import Colour
+from datetime import datetime, timedelta
 
 #logger = logging.getLogger('discord')
 #logger.setLevel(logging.INFO)
@@ -79,9 +81,24 @@ async def on_member_update(before, after):
             embed.add_field(name='Views', value=ch.views)
             if ch.profile_banner:
                 embed.set_image(url=ch.profile_banner)
+            uptime = get_uptime_min(ch.id)
+            if(uptime > 2):
+                print("uptime over 2 min, ignoring", flush=True)
+                return;
             print(embed.to_dict(), flush=True)
             print(client.get_channel(streamChannel).name, flush=True)
             await client.send_message(client.get_channel(streamChannel), after.display_name + ' is now live! Watch the stream: '+ streamUrl,embed=embed)
             print("posted", flush=True)
+
+def get_uptime_min(streamID):
+    stream = twitch.streams.get_stream_by_user(streamID, 'live')
+    created_at = stream.created_at
+    createdSeconds = (created_at - datetime(1970, 1, 1)).total_seconds()
+    nowUTC = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
+    uptime = nowUTC - createdSeconds
+    minute = uptime /60
+    print("uptime is: " + str(minute), flush=True)
+    return minute
+
 
 client.run(token)
